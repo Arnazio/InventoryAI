@@ -6,6 +6,7 @@ MVP web application that enables small and mid-sized businesses to upload histor
 
 - `backend/` – FastAPI service (data ingestion, forecasting engine, REST API)
 - `frontend/` – Next.js dashboard (auth, uploads, charts)
+- `landing-page/` – Standalone Next.js marketing site
 - `docs/` – Architecture and planning documents
 
 ## Getting Started
@@ -22,6 +23,14 @@ uvicorn app.main:app --reload
 
 ```bash
 cd frontend
+npm install
+npm run dev
+```
+
+### Landing page
+
+```bash
+cd landing-page
 npm install
 npm run dev
 ```

@@ -1,26 +1,69 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 213 44% 99%;
+  --foreground: 223 47% 11%;
+  --muted: 220 28% 92%;
+  --muted-foreground: 222 19% 45%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --border: 216 31% 90%;
+  --input: 216 31% 90%;
+  --ring: 214 84% 56%;
+  --primary: 214 86% 55%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 209 100% 96%;
+  --secondary-foreground: 215 54% 18%;
+  --accent: 186 100% 89%;
+  --accent-foreground: 210 68% 20%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --success: 146 62% 46%;
+  --success-foreground: 152 81% 6%;
+  --warning: 32 95% 58%;
+  --warning-foreground: 28 68% 13%;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --background: 222 47% 11%;
+  --foreground: 213 44% 99%;
+  --muted: 223 30% 17%;
+  --muted-foreground: 215 20% 70%;
+  --card: 222 47% 13%;
+  --card-foreground: 213 44% 99%;
+  --popover: 222 47% 13%;
+  --popover-foreground: 213 44% 99%;
+  --border: 223 31% 20%;
+  --input: 223 31% 20%;
+  --ring: 214 84% 56%;
+  --primary: 214 86% 57%;
+  --primary-foreground: 213 44% 99%;
+  --secondary: 222 42% 18%;
+  --secondary-foreground: 213 44% 99%;
+  --accent: 201 94% 76%;
+  --accent-foreground: 213 44% 20%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 213 44% 99%;
+  --success: 146 62% 50%;
+  --success-foreground: 140 77% 10%;
+  --warning: 32 95% 60%;
+  --warning-foreground: 24 91% 25%;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  ::selection {
+    @apply bg-primary/90 text-primary-foreground;
+  }
 }

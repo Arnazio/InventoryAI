@@ -5,10 +5,10 @@ import { CheckCircle2 } from "lucide-react";
 import { POGenerator } from "@/components/procurement/po-generator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useDemoContent } from "@/hooks/use-forecast-data";
+import { useForecastData } from "@/hooks/use-forecast-data";
 
 export default function ProcurementPage() {
-  const { procurement } = useDemoContent();
+  const { data } = useForecastData();
 
   return (
     <div className="flex flex-col gap-8">
@@ -38,7 +38,7 @@ export default function ProcurementPage() {
         </CardContent>
       </Card>
 
-      <POGenerator items={procurement} />
+      <POGenerator items={data.procurement} />
     </div>
   );
 }

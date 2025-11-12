@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { DashboardCards } from "@/components/dashboard/dashboard-cards";
 import { ForecastChart } from "@/components/dashboard/forecast-chart";
@@ -10,7 +10,7 @@ import { AIInsightsPanel } from "@/components/dashboard/ai-insights-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useDemoContent } from "@/hooks/use-forecast-data";
+import { useForecastData } from "@/hooks/use-forecast-data";
 import { type TimeSeriesPoint } from "@/lib/types";
 
 const rangeMap: Record<string, number> = {
@@ -20,17 +20,23 @@ const rangeMap: Record<string, number> = {
 };
 
 export default function DashboardPage() {
-  const { metrics, chartSeries, tableRows, insights, settings } = useDemoContent();
-  const skuOptions = Object.keys(chartSeries);
+  const { data, isFetching, hasLiveData } = useForecastData();
+  const skuOptions = Object.keys(data.chartSeries);
   const [selectedSku, setSelectedSku] = useState(skuOptions[0] ?? "");
   const [selectedRange, setSelectedRange] = useState<string>("6m");
 
+  useEffect(() => {
+    if (skuOptions.length && !selectedSku) {
+      setSelectedSku(skuOptions[0]);
+    }
+  }, [skuOptions, selectedSku]);
+
   const chartData = useMemo<TimeSeriesPoint[]>(() => {
-    const baseSeries = chartSeries[selectedSku] ?? [];
+    const baseSeries = data.chartSeries[selectedSku] ?? [];
     const limit = rangeMap[selectedRange];
     if (!limit) return baseSeries;
     return baseSeries.slice(-limit);
-  }, [chartSeries, selectedSku, selectedRange]);
+  }, [data.chartSeries, selectedSku, selectedRange]);
 
   return (
     <div className="flex flex-col gap-10">
@@ -49,7 +55,10 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex flex-col gap-2 text-sm text-muted-foreground md:text-right">
-            <span>Last synchronized 12 minutes ago</span>
+            <span>
+              {hasLiveData ? "Live forecast data" : "Demo forecast data"}
+              {isFetching ? " • refreshing…" : null}
+            </span>
             <div className="flex items-center gap-2 text-primary">
               <CheckCircle2 className="h-4 w-4" />
               AI forecast ready — based on your last 12 months of sales.
@@ -68,7 +77,7 @@ export default function DashboardPage() {
             Need integrations? Connect Shopify or Odoo from Settings.
           </span>
         </div>
-        <DashboardCards metrics={metrics} />
+        <DashboardCards metrics={data.metrics} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[2fr_1fr]">
@@ -81,7 +90,7 @@ export default function DashboardPage() {
           onTimeRangeChange={setSelectedRange}
         />
         <div className="flex flex-col gap-6">
-          <AIInsightsPanel insights={insights} />
+          <AIInsightsPanel insights={data.insights} isLoading={isFetching && !hasLiveData} />
           <Card className="border-0 bg-card/80 shadow-lg shadow-primary/10">
             <CardHeader>
               <CardTitle className="text-lg font-semibold">Forecast Settings</CardTitle>
@@ -90,30 +99,30 @@ export default function DashboardPage() {
             <CardContent className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Model Type</p>
-                <p className="mt-1 text-base font-semibold text-foreground">{settings.model}</p>
+                <p className="mt-1 text-base font-semibold text-foreground">{data.settings.model}</p>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   Confidence Threshold
                 </p>
                 <p className="mt-1 text-base font-semibold text-primary">
-                  {Math.round(settings.confidenceThreshold * 100)}%
+                  {Math.round(data.settings.confidenceThreshold * 100)}%
                 </p>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Horizon</p>
-                <p className="mt-1 text-base font-semibold text-foreground">{settings.horizonDays} days</p>
+                <p className="mt-1 text-base font-semibold text-foreground">{data.settings.horizonDays} days</p>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Last Updated</p>
-                <p className="mt-1 text-base font-semibold text-foreground">{settings.lastUpdated}</p>
+                <p className="mt-1 text-base font-semibold text-foreground">{data.settings.lastUpdated}</p>
               </div>
             </CardContent>
           </Card>
         </div>
       </section>
 
-      <ForecastTable rows={tableRows} />
+      <ForecastTable rows={data.tableRows} />
     </div>
   );
 }

@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { ForecastChart } from "@/components/dashboard/forecast-chart";
 import { ForecastTable } from "@/components/dashboard/forecast-table";
 import { AIInsightsPanel } from "@/components/dashboard/ai-insights-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDemoContent } from "@/hooks/use-forecast-data";
+import { useForecastData } from "@/hooks/use-forecast-data";
 import { type TimeSeriesPoint } from "@/lib/types";
 
 const skuSegments = ["Fast Movers", "Core Catalog", "Seasonal"];
@@ -19,18 +19,24 @@ const rangeMap: Record<string, number> = {
 };
 
 export default function ForecastsPage() {
-  const { chartSeries, tableRows, insights } = useDemoContent();
-  const skuOptions = Object.keys(chartSeries);
+  const { data, isFetching, hasLiveData } = useForecastData();
+  const skuOptions = Object.keys(data.chartSeries);
   const [selectedSku, setSelectedSku] = useState(skuOptions[0] ?? "");
   const [selectedRange, setSelectedRange] = useState<string>("6m");
   const [selectedSegment, setSelectedSegment] = useState<string>("Fast Movers");
 
+  useEffect(() => {
+    if (skuOptions.length && !selectedSku) {
+      setSelectedSku(skuOptions[0]);
+    }
+  }, [skuOptions, selectedSku]);
+
   const chartData = useMemo<TimeSeriesPoint[]>(() => {
-    const baseSeries = chartSeries[selectedSku] ?? [];
+    const baseSeries = data.chartSeries[selectedSku] ?? [];
     const limit = rangeMap[selectedRange];
     if (!limit) return baseSeries;
     return baseSeries.slice(-limit);
-  }, [chartSeries, selectedSku, selectedRange]);
+  }, [data.chartSeries, selectedSku, selectedRange]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -69,7 +75,7 @@ export default function ForecastsPage() {
           selectedRange={selectedRange}
           onTimeRangeChange={setSelectedRange}
         />
-        <AIInsightsPanel insights={insights} />
+        <AIInsightsPanel insights={data.insights} isLoading={isFetching && !hasLiveData} />
       </section>
 
       <section className="flex flex-col gap-4">
@@ -87,7 +93,7 @@ export default function ForecastsPage() {
             <Button size="pill">Share Report</Button>
           </div>
         </div>
-        <ForecastTable rows={tableRows} />
+        <ForecastTable rows={data.tableRows} />
       </section>
     </div>
   );
